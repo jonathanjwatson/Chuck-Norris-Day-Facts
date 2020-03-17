@@ -13,4 +13,14 @@ $(document).ready(function() {
       displayJoke(response.value);
     });
   });
+  $("#new-banana-fact").on("click", function() {
+    $.ajax({
+      url: "https://api.chucknorris.io/jokes/search?query=banana",
+      method: "GET"
+    }).then(function(response) {
+      var indexToReturn = Math.round(Math.random() * response.result.length);
+      console.log(response.result[indexToReturn].value);
+      displayJoke(response.result[indexToReturn].value);
+    });
+  });
 });
