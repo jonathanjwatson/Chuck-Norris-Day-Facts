@@ -47,6 +47,24 @@
           <button class="btn-primary" id="new-banana-fact">Banana Fact</button>
         </div>
       </div>
+      <div class="row">
+        <form>
+          <div class="form-group">
+            <input
+              type="text"
+              class="form-control"
+              id="new-query"
+              placeholder="Type a term to search"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary" id="new-query-button">
+            Search
+          </button>
+        </form>
+      </div>
+      <div class="row">
+        <div class="col" id="recent-searches"></div>
+      </div>
     </div>
 
     <script
@@ -55,5 +73,66 @@
       crossorigin="anonymous"
     ></script>
     <script src="script.js"></script>
+    <script>
+      $(document).ready(function() {
+        function displayJoke(jokeToDisplay) {
+          $("#fact").text(jokeToDisplay);
+        }
+
+        readAndDisplay();
+
+        function readAndDisplay(searchTerm) {
+          // 2. Read from local storage.
+          var searchTermsArray = localStorage.getItem("searchTerms");
+          if (searchTermsArray === null) {
+            localStorage.setItem("searchTerms", JSON.stringify([searchTerm]));
+          } else if (searchTerm) {
+            // 3. Add my new search term.
+            searchTermsArray = JSON.parse(searchTermsArray);
+            searchTermsArray.push(searchTerm);
+            // 4. Write to local storage.
+            localStorage.setItem(
+              "searchTerms",
+              JSON.stringify(searchTermsArray)
+            );
+          } else {
+            searchTermsArray = JSON.parse(searchTermsArray);
+          }
+          // 5. Update the DOM
+          var recentSearches = $("#recent-searches");
+          recentSearches.empty();
+          for (var i = 0; i < searchTermsArray.length; i++) {
+            recentSearches.append(
+              "<div class='row'><h1>" + searchTermsArray[i] + "</h1></div>"
+            );
+          }
+        }
+
+        // console.log("This is inside my script tag in html");
+        $("#new-query-button").on("click", function(event) {
+          event.preventDefault();
+          // console.log("You clicked my new query button");
+
+          var searchTerm = $("#new-query").val();
+
+          console.log(searchTerm);
+
+          // AJAX Call
+          // pass in the searchTerm we grabbed above
+          var queryURL =
+            "https://api.chucknorris.io/jokes/search?query=" + searchTerm;
+          // identify the url and the get method
+          $.ajax({
+            url: queryURL,
+            method: "GET"
+          }).then(function(response) {
+            console.log(response.result[0].value);
+            // 1. Populate the page with the information - quote
+            displayJoke(response.result[0].value);
+            readAndDisplay(searchTerm);
+          });
+        });
+      });
+    </script>
   </body>
 </html>
